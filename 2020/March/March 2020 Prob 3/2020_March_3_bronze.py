@@ -1,62 +1,61 @@
- #time = 48 min
+# time = 48 min
 def open_file():
-    fin = open('notlast.in')
+    fin = open('tracing.in')
     logs = []
     count = 1
     for line in fin:
         line = line.strip()
-        if count != 1:
-            logs.append([line.split(" ")[0], int(line.split(" ")[1])])
+        if count == 2:
+            sick_cows = [int(char) for char in line]
+        if count > 2:
+            logs.append(map(lambda x: int(x), line.split(" ")))
         count += 1
     fin.close()
-    return logs
+    logs.sort()
+    return sick_cows, logs
 
 
-def follow_through(logs):
-    cows_milk_data = [0, 0, 0, 0, 0, 0, 0]
-    for log in logs:
-        if "Bessie" == log[0]:
-            cows_milk_data[0] += log[1]
-        elif "Elsie" == log[0]:
-            cows_milk_data[1] += log[1]
-        elif "Daisy" == log[0]:
-            cows_milk_data[2] += log[1]
-        elif "Gertie" == log[0]:
-            cows_milk_data[3] += log[1]
-        elif "Annabelle" == log[0]:
-            cows_milk_data[4] += log[1]
-        elif "Maggie" == log[0]:
-            cows_milk_data[5] += log[1]
-        elif "Henrietta" == log[0]:
-            cows_milk_data[6] += log[1]
-    min_milk = min(cows_milk_data)
-    for n in range(len(cows_milk_data)):
-        try:
-            cows_milk_data[cows_milk_data.index(min_milk)] = 1000000000
-        except:
-            break
-    if cows_milk_data == [] or cows_milk_data.count(min(cows_milk_data)) > 1:
-        return "Tie"
-    else:
-        if cows_milk_data[0] == min(cows_milk_data):
-            return "Bessie"
-        if cows_milk_data[1] == min(cows_milk_data):
-            return "Elsie"
-        if cows_milk_data[2] == min(cows_milk_data):
-            return "Daisy"
-        if cows_milk_data[3] == min(cows_milk_data):
-            return "Gertie"
-        if cows_milk_data[4] == min(cows_milk_data):
-            return "Annabelle"
-        if cows_milk_data[5] == min(cows_milk_data):
-            return "Maggie"
-        if cows_milk_data[6] == min(cows_milk_data):
-            return "Henrietta"
+def follow_through(data):
+    cows_list, logs = data
+    pos_canidates = []
+    for cow in range(len(cows_list)):
+        if cows_list[cow] == 1:
+            pos_canidates.append(cow)
+    sick_cows = pos_canidates[::]
+    original_canidates = pos_canidates[::]
+    pos_k = []
+    for canidate in pos_canidates:
+        cow_k = 10000
+        pos_sick = []
+        works = True
+        for log in logs:
+            if log[1]-1 == canidate:
+                connect = log[2] - 1
+                pos_sick.append(connect)
+            elif log[2]-1 == canidate:
+                connect = log[1] - 1
+                pos_sick.append(connect)
+        for sick in range(len(pos_sick)):
+            try:
+                sick_cows.remove(pos_sick[sick])
+                if sick + 1 < cow_k:
+                    cow_k = sick + 1
+            except:
+                if sick_cows != []:
+                    works = False
+                else:
+                    if sick + 1 < cow_k:
+                        cow_k = sick + 1
+        if not works:
+            original_canidates.remove(canidate)
+        if canidate in original_canidates:
+            pos_k.append(cow_k)
+    return len(pos_canidates), min(pos_k), max(pos_k)
 
 
 def close_file(answer):
-    fout = open("notlast.out", "w")
-    fout.write("{}\n".format(answer))
+    fout = open("tracing.out", "w")
+    fout.write("{} {} {}".format(answer[0], answer[1], "Infinity" if answer[2] == answer[1] else answer[2]))
     fout.close()
 
 

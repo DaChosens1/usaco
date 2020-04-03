@@ -1,61 +1,64 @@
- #time = 48 min
+import copy
+# time = 48 min
+
+
 def open_file():
-    fin = open('notlast.in')
-    logs = []
+    fin = open('1.in')
+    cows = []
     count = 1
     for line in fin:
         line = line.strip()
         if count != 1:
-            logs.append([line.split(" ")[0], int(line.split(" ")[1])])
+            cows.append(map(lambda x: int(x), line.split(" ")))
         count += 1
     fin.close()
-    return logs
+    cows.sort()
+    return cows
 
 
-def follow_through(logs):
-    cows_milk_data = [0, 0, 0, 0, 0, 0, 0]
-    for log in logs:
-        if "Bessie" == log[0]:
-            cows_milk_data[0] += log[1]
-        elif "Elsie" == log[0]:
-            cows_milk_data[1] += log[1]
-        elif "Daisy" == log[0]:
-            cows_milk_data[2] += log[1]
-        elif "Gertie" == log[0]:
-            cows_milk_data[3] += log[1]
-        elif "Annabelle" == log[0]:
-            cows_milk_data[4] += log[1]
-        elif "Maggie" == log[0]:
-            cows_milk_data[5] += log[1]
-        elif "Henrietta" == log[0]:
-            cows_milk_data[6] += log[1]
-    min_milk = min(cows_milk_data)
-    for n in range(len(cows_milk_data)):
-        try:
-            cows_milk_data[cows_milk_data.index(min_milk)] = 1000000000
-        except:
-            break
-    if cows_milk_data == [] or cows_milk_data.count(min(cows_milk_data)) > 1:
-        return "Tie"
+def follow_through(cows):
+    r = 99999
+    for cow in cows:
+        if cow[1] == 0:
+            try:
+                if abs(cow[0]-cows[cows.index(cow)-1][0]) < r:
+                    r = abs(cow[0]-cows[cows.index(cow)-1][0])
+            except:
+                pass
+            try:
+                if abs(cow[0]-cows[cows.index(cow)+1][0]) < r:
+                    r = abs(cow[0]-cows[cows.index(cow)+1][0])
+            except:
+                pass
+    if r == 99999:
+        return 1
     else:
-        if cows_milk_data[0] == min(cows_milk_data):
-            return "Bessie"
-        if cows_milk_data[1] == min(cows_milk_data):
-            return "Elsie"
-        if cows_milk_data[2] == min(cows_milk_data):
-            return "Daisy"
-        if cows_milk_data[3] == min(cows_milk_data):
-            return "Gertie"
-        if cows_milk_data[4] == min(cows_milk_data):
-            return "Annabelle"
-        if cows_milk_data[5] == min(cows_milk_data):
-            return "Maggie"
-        if cows_milk_data[6] == min(cows_milk_data):
-            return "Henrietta"
+        r -= 1
+        infected_cows = copy.deepcopy(cows)
+        for cow in cows:
+            if cow[1] == 0:
+                infected_cows.remove(cow)
+        for x in range(len(infected_cows)):
+            infected_cows[x] = infected_cows[x][0]
+        groups = [[infected_cows[0]]]
+        infected_cows.pop(0)
+        for cow in infected_cows:
+            works = False
+            for x in range(len(groups)):
+                for n in range(len(groups[x])):
+                    if groups[x][n]-r <= cow <= groups[x][n]+r:
+                        groups[x].append(cow)
+                        works = True
+                        break
+                if works:
+                    break
+            if not works:
+                groups.append([cow])
+        return len(groups)
 
 
 def close_file(answer):
-    fout = open("notlast.out", "w")
+    fout = open("socdist2.out", "w")
     fout.write("{}\n".format(answer))
     fout.close()
 
