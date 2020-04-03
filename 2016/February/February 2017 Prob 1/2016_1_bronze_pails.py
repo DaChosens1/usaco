@@ -1,4 +1,4 @@
-# time = 43 min
+# time = 20 min
 def open_file():
     fin = open('pails.in')
     for line in fin:
