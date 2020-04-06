@@ -1,4 +1,4 @@
-# time = 34 min
+# time = 47 min
 def open_file():
     fin = open('angry.in')
     bales = []
