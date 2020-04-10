@@ -1,4 +1,4 @@
-# time = 48 min
+# time = 46 min
 def open_file():
     fin = open('socdist2.in')
     cows = []
