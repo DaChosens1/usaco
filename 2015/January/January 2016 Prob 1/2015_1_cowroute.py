@@ -1,4 +1,4 @@
-# time = 34 min
+# time = 32 min
 def open_file():
     fin = open('cowroute.in')
     route_cost = []

@@ -1,9 +1,6 @@
-import copy
 # time = 48 min
-
-
 def open_file():
-    fin = open('1.in')
+    fin = open('socdist2.in')
     cows = []
     count = 1
     for line in fin:
@@ -17,44 +14,35 @@ def open_file():
 
 
 def follow_through(cows):
-    r = 99999
+    R = 1000
+    for cow in range(len(cows)):
+        if cows[cow][1] == 0 and cow != len(cows) - 1 and cows[cow + 1][1] == 1:
+            if cows[cow + 1][0] - cows[cow][0] < R:
+                R = cows[cow + 1][0] - cows[cow][0]
+        if cows[cow][1] == 0 and cow != 0 and cows[cow - 1][1] == 1:
+            if cows[cow][0] - cows[cow - 1][0] < R:
+                R = cows[cow][0] - cows[cow - 1][0]
+    sick_cow_groups = [[]]
     for cow in cows:
-        if cow[1] == 0:
-            try:
-                if abs(cow[0]-cows[cows.index(cow)-1][0]) < r:
-                    r = abs(cow[0]-cows[cows.index(cow)-1][0])
-            except:
-                pass
-            try:
-                if abs(cow[0]-cows[cows.index(cow)+1][0]) < r:
-                    r = abs(cow[0]-cows[cows.index(cow)+1][0])
-            except:
-                pass
-    if r == 99999:
-        return 1
-    else:
-        r -= 1
-        infected_cows = copy.deepcopy(cows)
-        for cow in cows:
-            if cow[1] == 0:
-                infected_cows.remove(cow)
-        for x in range(len(infected_cows)):
-            infected_cows[x] = infected_cows[x][0]
-        groups = [[infected_cows[0]]]
-        infected_cows.pop(0)
-        for cow in infected_cows:
-            works = False
-            for x in range(len(groups)):
-                for n in range(len(groups[x])):
-                    if groups[x][n]-r <= cow <= groups[x][n]+r:
-                        groups[x].append(cow)
-                        works = True
-                        break
-                if works:
-                    break
-            if not works:
-                groups.append([cow])
-        return len(groups)
+        if cow[1] == 1:
+            sick_cow_groups[-1].append(cow[0])
+        elif cow[1] == 0 and sick_cow_groups[-1] != []:
+            sick_cow_groups.append([])
+    if sick_cow_groups[-1] == []:
+        sick_cow_groups.pop()
+    sick_cows = 0
+    for group in sick_cow_groups:
+        temp = group[::]
+        new_groups = [[temp[0]]]
+        temp.pop(0)
+        for cow in temp:
+            if cow - new_groups[-1][-1] >= R:
+                new_groups.append([cow])
+            else:
+                new_groups[-1].append(cow)
+        sick_cows += len(new_groups)
+    return sick_cows
+
 
 
 def close_file(answer):

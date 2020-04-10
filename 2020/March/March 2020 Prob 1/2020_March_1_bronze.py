@@ -12,69 +12,75 @@ def open_file():
 
 
 def place_cows(stalls):
-    new_stalls = stalls[::]
-    pos_location = []
-    for stall in range(len(stalls)):
-        if stalls[stall] == 1:
-            for other_stall in range(stall + 1, len(stalls)):
-                if stalls[other_stall] == 1:
-                    pos_location.append([stall, other_stall])
+    def find_large_gap(stalls_list):
+        temp = stalls_list
+        temp = [1] + temp + [1]
+        pos_location = []
+        for stall in range(len(temp)):
+            if temp[stall] == 1:
+                for other_stall in range(stall + 1, len(temp)):
+                    if temp[other_stall] == 1:
+                        pos_location.append([stall, other_stall])
+                        break
+        max_dist = [0, 0]
+        for pos_place in pos_location:
+            if abs(pos_place[0] - pos_place[1]) > abs(max_dist[0] - max_dist[1]):
+                max_dist = pos_place
+        return [max_dist[0]-1, max_dist[1]-1]
+
+    pos_solutions = []
+    for first_cow in range(3):
+        pos_sol = stalls[::]
+        if first_cow == 0:
+            for n in range(len(pos_sol)):
+                if pos_sol[n] == 0:
+                    pos_sol[n] = 1
                     break
-    max_dist = [0, 0]
-    for pos_place in pos_location:
-        if abs(pos_place[0] - pos_place[1]) > abs(max_dist[0] - max_dist[1]):
-            max_dist = pos_place
-    if pos_location[0][0] + 1 > abs(max_dist[0] - max_dist[1]):
-        new_stalls[0] = 1
-    elif len(pos_location) - pos_location[-1][-1] - 2 > abs(max_dist[0] - max_dist[1]):
-        new_stalls[-1] = 1
-    else:
-        new_stalls[(max_dist[0] + max_dist[1]) // 2] = 1
-    return new_stalls
-
-
-def find_d(stalls):
-    other_dist = 999999
-    other_stalls = stalls[::]
-    pos_location = []
-    for stall in range(len(stalls)):
-        if stalls[stall] == 1:
-            for other_stall in range(stall + 1, len(stalls)):
-                if stalls[other_stall] == 1:
-                    pos_location.append([stall, other_stall])
+        elif first_cow == 1:
+            max_dist = find_large_gap(pos_sol)
+            pos_sol[(max_dist[1]+max_dist[0])/2] = 1
+        elif first_cow == 2:
+            for n in range(1, len(pos_sol)+1):
+                if pos_sol[-n] == 0:
+                    pos_sol[-n] = 1
                     break
-    max_dist = [0, 0]
-    for pos_place in pos_location:
-        if abs(pos_place[0] - pos_place[1]) > abs(max_dist[0] - max_dist[1]):
-            max_dist = pos_place
-    if pos_location[0][0] + 1 > abs(max_dist[0] - max_dist[1]):
-        other_stalls[0] = 1
-        other_stalls[(pos_location[0][0] + 1)//2] = 1
-    elif len(pos_location) - pos_location[-1][-1] - 2 > abs(max_dist[0] - max_dist[1]):
-        other_stalls[-1] = 1
-        other_stalls[len(pos_location) - pos_location[-1][-1] - 2 // 2] = 1
-    else:
-        other_stalls[(max_dist[0] + max_dist[1]) // 3] = 1
-        other_stalls[(max_dist[0] + max_dist[1]) * 2 // 3] = 1
-    new_one_locations = []
-    for stall in range(len(other_stalls)):
-        if other_stalls[stall] == 1:
-            new_one_locations.append(stall)
-    dists = []
-    for x in range(len(new_one_locations) - 1):
-        dists.append(abs(new_one_locations[x] - new_one_locations[x + 1]))
-    pos_ans = min(dists)
+        temp = pos_sol[::]
+        for second_cow in range(3):
+            new_pos_sol = temp[::]
+            if second_cow == 0:
+                for n in range(len(new_pos_sol)):
+                    if new_pos_sol[n] == 0:
+                        new_pos_sol[n] = 1
+                        break
+            elif second_cow == 1:
+                max_dist = find_large_gap(new_pos_sol)
+                new_pos_sol[(max_dist[1] + max_dist[0]) / 2] = 1
+            elif second_cow == 2:
+                for n in range(1, len(new_pos_sol) + 1):
+                    if new_pos_sol[-n] == 0:
+                        new_pos_sol[-n] = 1
+                        break
+            pos_solutions.append(new_pos_sol)
+    last_instance = stalls[::]
+    large_gap = find_large_gap(last_instance)
+    last_instance[int(large_gap[0]+round((large_gap[1]-large_gap[0])/3))] = 1
+    last_instance[int(large_gap[0]+round((large_gap[1]-large_gap[0])/3*2))] = 1
+    pos_solutions.append(last_instance)
+    return pos_solutions
 
-    stalls = place_cows(stalls)
-    stalls = place_cows(stalls)
-    one_locations = []
-    for stall in range(len(stalls)):
-        if stalls[stall] == 1:
-            one_locations.append(stall)
-    dists = []
-    for x in range(len(one_locations) - 1):
-        dists.append(abs(one_locations[x] - one_locations[x + 1]))
-    return min(dists) if min(dists) > pos_ans else pos_ans
+
+def find_d(pos_solution):
+    most_min_dist = 0
+    for solution in pos_solution:
+        min_dist = 100005
+        for filled_stall in range(len(solution)):
+            for new_filled_stall in range(filled_stall+1, len(solution)):
+                if filled_stall != new_filled_stall and solution[filled_stall] == 1 and solution[new_filled_stall] == 1\
+                        and abs(new_filled_stall-filled_stall) < min_dist:
+                    min_dist = abs(new_filled_stall-filled_stall)
+        if min_dist > most_min_dist:
+            most_min_dist = min_dist
+    return most_min_dist
 
 
 def close_file(answer):
@@ -83,4 +89,4 @@ def close_file(answer):
     fout.close()
 
 
-close_file(find_d(open_file()))
+close_file(find_d(place_cows(open_file())))
