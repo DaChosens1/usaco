@@ -17,45 +17,42 @@ def open_file():
 
 def follow_through(data):
     cows_list, logs = data
-    pos_canidates = []
-    for cow in range(len(cows_list)):
-        if cows_list[cow] == 1:
-            pos_canidates.append(cow)
-    sick_cows = pos_canidates[::]
-    original_canidates = pos_canidates[::]
-    pos_k = []
+    true_canidates = []
+    pos_canidates = range(1, len(cows_list)+1)
+    k_vals = []
     for canidate in pos_canidates:
-        cow_k = 10000
-        pos_sick = []
-        works = True
-        for log in logs:
-            if log[1]-1 == canidate:
-                connect = log[2] - 1
-                pos_sick.append(connect)
-            elif log[2]-1 == canidate:
-                connect = log[1] - 1
-                pos_sick.append(connect)
-        for sick in range(len(pos_sick)):
-            try:
-                sick_cows.remove(pos_sick[sick])
-                if sick + 1 < cow_k:
-                    cow_k = sick + 1
-            except:
-                if sick_cows != []:
-                    works = False
-                else:
-                    if sick + 1 < cow_k:
-                        cow_k = sick + 1
-        if not works:
-            original_canidates.remove(canidate)
-        if canidate in original_canidates:
-            pos_k.append(cow_k)
-    return len(pos_canidates), min(pos_k), max(pos_k)
+        works = False
+        for pos_k in range(len(logs)+1):
+            cows_rep = [[0, 0] for n in range(len(cows_list))]
+            cows_rep[canidate - 1][0] = 1
+            for log in logs:
+                a = False
+                b = False
+                if cows_rep[log[1]-1][0] == 1:
+                    if cows_rep[log[1]-1][1] < pos_k:
+                        a = True
+                    cows_rep[log[1] - 1][1] += 1
+                if cows_rep[log[2] - 1][0] == 1:
+                    if cows_rep[log[2]-1][1] < pos_k:
+                        b = True
+                    cows_rep[log[2] - 1][1] += 1
+                if a:
+                    cows_rep[log[2] - 1][0] = 1
+                if b:
+                    cows_rep[log[1] - 1][0] = 1
+            product = [x[0] for x in cows_rep]
+            if product == cows_list:
+                k_vals.append(pos_k)
+                works = True
+        if works:
+            true_canidates.append(canidate)
+
+    return len(true_canidates), min(k_vals), ("Infinity" if max(k_vals) == len(logs) else max(k_vals))
 
 
 def close_file(answer):
     fout = open("tracing.out", "w")
-    fout.write("{} {} {}".format(answer[0], answer[1], "Infinity" if answer[2] == answer[1] else answer[2]))
+    fout.write("{} {} {}".format(answer[0], answer[1], answer[2]))
     fout.close()
 
 
