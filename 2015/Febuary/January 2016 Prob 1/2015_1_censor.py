@@ -35,6 +35,3 @@ def close_file(answer):
     fout = open("censor.out", "w")
     fout.write("{}".format(answer))
     fout.close()
-
-
-close_file(follow_through(open_file()))
